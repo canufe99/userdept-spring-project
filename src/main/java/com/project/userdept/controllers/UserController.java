@@ -53,8 +53,7 @@ public class UserController {
         if(existingUser != null) {
             existingUser.setName(user.getName());
             existingUser.setName(user.getEmail());
-            existingUser.setId(user.getId());
-
+            
             User updatedUser = repository.save(existingUser);
             return updatedUser;
         } else {
