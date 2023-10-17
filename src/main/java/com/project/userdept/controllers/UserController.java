@@ -1,7 +1,6 @@
 package com.project.userdept.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.userdept.entities.User;
-import com.project.userdept.exceptions.UserNotFoundException;
 import com.project.userdept.repository.UserRepository;
 
 @RestController
@@ -30,15 +28,13 @@ public class UserController {
         return result;
     }
 
+  
     @GetMapping( value = "/{id}")
-    public User findById(@PathVariable Long id) throws UserNotFoundException {        
-        Optional<User> userOptional = repository.findById(id);
-    if (userOptional.isPresent()) {
-        return userOptional.get();
-    } else {
-        throw new UserNotFoundException("User with ID " + id + " not found");
+    public User findById(@PathVariable Long id) {        
+        User user = repository.findById(id).get();
+        return user;    
     }
-}
+   
 
     @PostMapping
     public User insert(@RequestBody User user){        
@@ -47,27 +43,19 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) throws UserNotFoundException {
-        User existingUser = repository.findById(id).orElse(null);
+    public User update(@PathVariable Long id, @RequestBody User user) {
+        User existingUser = repository.findById(id).get();
+        existingUser.setName(user.getName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setDepartment(user.getDepartment());
 
-        if(existingUser != null) {
-            existingUser.setName(user.getName());
-            existingUser.setName(user.getEmail());
-            
-            User updatedUser = repository.save(existingUser);
-            return updatedUser;
-        } else {
-            return null;
-        }     
+        User updatedUser = repository.save(existingUser);
+        return updatedUser;
     }
 
     @DeleteMapping(value = "/{id}")
-    public void deleteUser(@PathVariable long id) throws UserNotFoundException{
-        User existingUser = repository.findById(id).orElse(null);
-        if(existingUser != null) {
-            repository.delete(existingUser);
-        } else {
-            throw new UserNotFoundException("User with ID " + id + " not found");
-        }
+    public void deleteUser(@PathVariable long id) {
+        User existingUser =  repository.findById(id).get();
+        repository.delete(existingUser);
     }
 }
